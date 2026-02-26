@@ -29,6 +29,7 @@ import SubmissionReview from "../pages/ManagerDashboard/SubmissionReview";
 import ExploreContests from "../pages/ExploreContests";
 import Leaderboard from "../pages/Leaderboard";
 import ReviewContestList from "../pages/ManagerDashboard/ReviewContestList";
+import AdminHome from "../pages/AdminDashboard/AdminHome";
 
 
 
@@ -73,6 +74,10 @@ const Router = createBrowserRouter([
         element: <PrivateRoute><Dashboard /></PrivateRoute>,
         children: [
             // Admin  Route 
+            {
+              index:true,
+              element:<AdminRoute><AdminHome/></AdminRoute>
+            },
             { 
                 path: "manage-users", 
                 element: <AdminRoute><ManageUsers /></AdminRoute> 
