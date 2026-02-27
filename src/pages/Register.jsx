@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router";
 import { useContext, useState } from "react";
 import Swal from "sweetalert2";
 import { FcGoogle } from "react-icons/fc";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import useAxiosPublic from "../hooks/useAxios";
 import { AuthContext } from "../provider/AuthProvider";
 
@@ -14,6 +15,7 @@ const Register = () => {
     const axiosPublic = useAxiosPublic(); 
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false); 
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm();
 
@@ -23,21 +25,15 @@ const Register = () => {
         imageFile.append('image', data.photo[0]);
 
         try {
-            // 1. Upload Image to ImgBB
             const res = await axiosPublic.post(image_hosting_api, imageFile, {
                 headers: { 'content-type': 'multipart/form-data' }
             });
 
             if (res.data.success) {
                 const imageUrl = res.data.data.display_url;
-
-                // 2. Create User in Firebase
                 await createUser(data.email, data.password);      
-                
-                // 3. Update Firebase Profile
                 await updateUserProfile(data.name, imageUrl);
-
-                // 4. Save User Info to MongoDB
+                
                 const userInfo = {
                     name: data.name,
                     email: data.email,
@@ -85,15 +81,8 @@ const Register = () => {
                     winCount: 0,
                     timestamp: new Date()
                 };
-                
                 await axiosPublic.post('/users', userInfo);
-                
-                Swal.fire({
-                    icon: "success",
-                    title: "Google Login Successful!",
-                    showConfirmButton: false,
-                    timer: 1500,
-                });
+                Swal.fire({ icon: "success", title: "Success!", timer: 1500 });
                 navigate("/");
             })
             .catch(error => console.log(error));
@@ -111,7 +100,6 @@ const Register = () => {
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                     
-                    {/* Name */}
                     <div className="form-control">
                         <label className="label-text font-bold mb-2 ml-1 text-secondary uppercase text-[10px] tracking-widest">Full Name</label>
                         <input
@@ -122,7 +110,6 @@ const Register = () => {
                         {errors.name && <span className="text-error text-[10px] font-bold mt-1 ml-1 uppercase">{errors.name.message}</span>}
                     </div>
 
-                    {/* Photo */}
                     <div className="form-control">
                         <label className="label-text font-bold mb-2 ml-1 text-secondary uppercase text-[10px] tracking-widest">Profile Picture</label>
                         <input
@@ -133,7 +120,6 @@ const Register = () => {
                         {errors.photo && <span className="text-error text-[10px] font-bold mt-1 ml-1 uppercase">{errors.photo.message}</span>}
                     </div>
 
-                    {/* Email */}
                     <div className="form-control">
                         <label className="label-text font-bold mb-2 ml-1 text-secondary uppercase text-[10px] tracking-widest">Email Address</label>
                         <input
@@ -144,27 +130,35 @@ const Register = () => {
                         {errors.email && <span className="text-error text-[10px] font-bold mt-1 ml-1 uppercase">{errors.email.message}</span>}
                     </div>
 
-                    {/* Password */}
                     <div className="form-control">
                         <label className="label-text font-bold mb-2 ml-1 text-secondary uppercase text-[10px] tracking-widest">Password</label>
-                        <input
-                            type="password"
-                            {...register("password", { 
-                                required: "Password is required",
-                                minLength: { value: 6, message: "Minimum 6 characters" },
-                                pattern: {
-                                    value: /(?=.*[A-Z])(?=.*[!@#$&*])/,
-                                    message: "Must include a capital letter and special character"
-                                }
-                            })}
-                            className="input input-bordered rounded-2xl font-semibold"
-                        />
+                        <div className="relative">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                {...register("password", { 
+                                    required: "Password is required",
+                                    minLength: { value: 6, message: "Minimum 6 characters" },
+                                    pattern: {
+                                        value: /(?=.*[A-Z])(?=.*[!@#$&*])/,
+                                        message: "Need capital letter & special char"
+                                    }
+                                })}
+                                className="input input-bordered rounded-2xl font-semibold w-full pr-12"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary transition-colors text-lg"
+                            >
+                                {showPassword ? <FaEyeSlash /> : <FaEye />}
+                            </button>
+                        </div>
                         {errors.password && <span className="text-error text-[10px] font-bold mt-1 ml-1 uppercase">{errors.password.message}</span>}
                     </div>
 
                     <button 
                         disabled={loading}
-                        className="btn btn-primary w-full rounded-2xl text-white font-black uppercase tracking-widest text-sm mt-4 shadow-xl shadow-primary/20 transition-all active:scale-95 disabled:bg-slate-300"
+                        className="btn btn-primary w-full rounded-2xl text-white font-black uppercase tracking-widest text-sm mt-4 shadow-xl shadow-primary/20 transition-all active:scale-95 disabled:bg-slate-300 border-none"
                     >
                         {loading ? <span className="loading loading-spinner loading-sm"></span> : "Register Now"}
                     </button>

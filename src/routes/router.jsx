@@ -30,6 +30,8 @@ import ExploreContests from "../pages/ExploreContests";
 import Leaderboard from "../pages/Leaderboard";
 import ReviewContestList from "../pages/ManagerDashboard/ReviewContestList";
 import AdminHome from "../pages/AdminDashboard/AdminHome";
+import AboutPage from "../pages/AboutPage";
+import ContactPage from "../pages/ContactPage";
 
 
 
@@ -46,6 +48,14 @@ const Router = createBrowserRouter([
                 path:"leaderboard",
                 element:<Leaderboard/>
 
+            },
+            {
+               path:"about",
+               element:<AboutPage/>
+            },
+            {
+             path:"contact",
+             element:<ContactPage/>
             },
 
             {
